@@ -104,7 +104,7 @@ services:
       - 7053:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer0.ageli.hlc.com/:/etc/hyperledger/crypto/peer
-        #- ./chainData/:/var/hyperledger/production
+        - ./dataStorage/ageli/peer1/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
       - couchdbAgeli
@@ -124,6 +124,7 @@ services:
       - 7058:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer1.ageli.hlc.com/:/etc/hyperledger/crypto/peer
+        - ./dataStorage/ageli/peer2/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
 
@@ -147,10 +148,10 @@ services:
       - 8053:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer0.creator.hlc.com/:/etc/hyperledger/crypto/peer
+        - ./dataStorage/creator/peer1/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
       - couchdbCreator
-
 
 
   peer1.creator.hlc.com:
@@ -167,6 +168,7 @@ services:
       - 8058:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer1.creator.hlc.com/:/etc/hyperledger/crypto/peer
+        - ./dataStorage/creator/peer2/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
 
@@ -189,6 +191,7 @@ services:
       - 9053:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer0.transfer.hlc.com/:/etc/hyperledger/crypto/peer
+        - ./dataStorage/transfer/peer1/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
       - couchdbTransfer
@@ -208,6 +211,7 @@ services:
       - 9058:7053
     volumes:
         - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer1.transfer.hlc.com/:/etc/hyperledger/crypto/peer
+        - ./dataStorage/transfer/peer2/:/var/hyperledger/production
     depends_on:
       - orderer.hlc.com
 

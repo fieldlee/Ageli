@@ -1,0 +1,252 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+# networks:
+#   ageli:
+
+services:
+  ca.ageli.hlc.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.ageli.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/24e8335d1206f9692b5363265317cacf09ff5745e5439e9b23ec993668fa82d4_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.ageli.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/24e8335d1206f9692b5363265317cacf09ff5745e5439e9b23ec993668fa82d4_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerAgeli
+
+
+  ca.creator.hlc.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.creator.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/fcb245650e24463ccb42d20467a80cdfe6c4e147748810dc91e2136b75ecba4c_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.creator.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/fcb245650e24463ccb42d20467a80cdfe6c4e147748810dc91e2136b75ecba4c_sk
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config/peerOrganizations/creator.hlc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerCreator
+
+
+  ca.transfer.hlc.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.transfer.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/adbc3f80151c23e1be0ba8d5e27abbfd1b65b67f6ac7617e9ee15d58c6004cf5_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.transfer.hlc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/adbc3f80151c23e1be0ba8d5e27abbfd1b65b67f6ac7617e9ee15d58c6004cf5_sk
+    ports:
+      - "9054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerTransfer
+
+
+  orderer.hlc.com:
+    container_name: orderer.hlc.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/ca.crt, /etc/hyperledger/crypto/peerAgeli/tls/ca.crt, /etc/hyperledger/crypto/peerCreator/tls/ca.crt, /etc/hyperledger/crypto/peerTransfer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderers
+    command: orderer
+    ports:
+      - 7050:7050
+    volumes:
+        - ./channel:/etc/hyperledger/configtx
+        - ./channel/crypto-config/ordererOrganizations/hlc.com/orderers/orderer.hlc.com/:/etc/hyperledger/crypto/orderer
+        - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer0.ageli.hlc.com/:/etc/hyperledger/crypto/peerAgeli
+        - ./channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer0.creator.hlc.com/:/etc/hyperledger/crypto/peerCreator
+        - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer0.transfer.hlc.com/:/etc/hyperledger/crypto/peerTransfer
+
+
+  peer0.ageli.hlc.com:
+    container_name: peer0.ageli.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.ageli.hlc.com
+      - CORE_PEER_LOCALMSPID=AgeliMSP
+      - CORE_PEER_ADDRESS=peer0.ageli.hlc.com:7051
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbAgeli:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=couchadmin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    ports:
+      - 7051:7051
+      - 7053:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer0.ageli.hlc.com/:/etc/hyperledger/crypto/peer
+        #- ./chainData/:/var/hyperledger/production
+    depends_on:
+      - orderer.hlc.com
+      - couchdbAgeli
+
+
+  peer1.ageli.hlc.com:
+    container_name: peer1.ageli.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.ageli.hlc.com
+      - CORE_PEER_LOCALMSPID=AgeliMSP
+      - CORE_PEER_ADDRESS=peer1.ageli.hlc.com:7051
+    ports:
+      - 7056:7051
+      - 7058:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer1.ageli.hlc.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.hlc.com
+
+
+  peer0.creator.hlc.com:
+    container_name: peer0.creator.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.creator.hlc.com
+      - CORE_PEER_LOCALMSPID=CreatorMSP
+      - CORE_PEER_ADDRESS=peer0.creator.hlc.com:7051
+
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbCreator:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=couchadmin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    ports:
+      - 8051:7051
+      - 8053:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer0.creator.hlc.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.hlc.com
+      - couchdbCreator
+
+
+
+  peer1.creator.hlc.com:
+    container_name: peer1.creator.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.creator.hlc.com
+      - CORE_PEER_LOCALMSPID=CreatorMSP
+      - CORE_PEER_ADDRESS=peer1.creator.hlc.com:7051
+    ports:
+      - 8056:7051
+      - 8058:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer1.creator.hlc.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.hlc.com
+
+
+  peer0.transfer.hlc.com:
+    container_name: peer0.transfer.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.transfer.hlc.com
+      - CORE_PEER_LOCALMSPID=TransferMSP
+      - CORE_PEER_ADDRESS=peer0.transfer.hlc.com:7051
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbTransfer:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=couchadmin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    ports:
+      - 9051:7051
+      - 9053:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer0.transfer.hlc.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.hlc.com
+      - couchdbTransfer
+
+
+  peer1.transfer.hlc.com:
+    container_name: peer1.transfer.hlc.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.transfer.hlc.com
+      - CORE_PEER_LOCALMSPID=TransferMSP
+      - CORE_PEER_ADDRESS=peer1.transfer.hlc.com:7051
+    ports:
+      - 9056:7051
+      - 9058:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer1.transfer.hlc.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.hlc.com
+
+
+  couchdbAgeli:
+    container_name: couchdbAgeli
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=couchadmin
+      - COUCHDB_PASSWORD=adminpw
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "5984:5984"
+
+  couchdbCreator:
+    container_name: couchdbCreator
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=couchadmin
+      - COUCHDB_PASSWORD=adminpw
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "6984:5984"
+
+  couchdbTransfer:
+    container_name: couchdbTransfer
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=couchadmin
+      - COUCHDB_PASSWORD=adminpw
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "7984:5984"

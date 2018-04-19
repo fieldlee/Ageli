@@ -1,0 +1,81 @@
+{
+	"network-config": {
+		"orderer": {
+			"url": "grpcs://localhost:7050",
+			"server-hostname": "orderer.hlc.com",
+			"tls_cacerts": "../artifacts/channel/crypto-config/ordererOrganizations/hlc.com/orderers/orderer.hlc.com/tls/ca.crt"
+		},
+		"Ageli": {
+			"aliasName":"org1",
+			"name": "peerAgeli",
+			"mspid": "AgeliMSP",
+			"ca": "https://localhost:7054",
+			"peers": {
+				"peer1": {
+					"requests": "grpcs://localhost:7051",
+					"events": "grpcs://localhost:7053",
+					"server-hostname": "peer0.ageli.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer0.ageli.hlc.com/tls/ca.crt"
+				},
+				"peer2": {
+					"requests": "grpcs://localhost:7056",
+					"events": "grpcs://localhost:7058",
+					"server-hostname": "peer1.ageli.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/ageli.hlc.com/peers/peer1.ageli.hlc.com/tls/ca.crt"
+				}	
+			},
+			"admin": {
+				"key": "../artifacts/channel/crypto-config/peerOrganizations/ageli.hlc.com/users/Admin@ageli.hlc.com/msp/keystore",
+				"cert": "../artifacts/channel/crypto-config/peerOrganizations/ageli.hlc.com/users/Admin@ageli.hlc.com/msp/signcerts"
+			}
+		},
+		"Creator": {
+			"aliasName":"org1",
+			"name": "peerCreator",
+			"mspid": "CreatorMSP",
+			"ca": "https://localhost:8054",
+			"peers": {
+				"peer1": {
+					"requests": "grpcs://localhost:8051",
+					"events": "grpcs://localhost:8053",
+					"server-hostname": "peer0.creator.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer0.creator.hlc.com/tls/ca.crt"
+				},
+				"peer2": {
+					"requests": "grpcs://localhost:8056",
+					"events": "grpcs://localhost:8058",
+					"server-hostname": "peer1.creator.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/creator.hlc.com/peers/peer1.creator.hlc.com/tls/ca.crt"
+				}	
+			},
+			"admin": {
+				"key": "../artifacts/channel/crypto-config/peerOrganizations/creator.hlc.com/users/Admin@creator.hlc.com/msp/keystore",
+				"cert": "../artifacts/channel/crypto-config/peerOrganizations/creator.hlc.com/users/Admin@creator.hlc.com/msp/signcerts"
+			}
+		},
+		"Transfer": {
+			"aliasName":"org1",
+			"name": "peerTransfer",
+			"mspid": "TransferMSP",
+			"ca": "https://localhost:9054",
+			"peers": {
+				"peer1": {
+					"requests": "grpcs://localhost:9051",
+					"events": "grpcs://localhost:9053",
+					"server-hostname": "peer0.transfer.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer0.transfer.hlc.com/tls/ca.crt"
+				},
+				"peer2": {
+					"requests": "grpcs://localhost:9056",
+					"events": "grpcs://localhost:9058",
+					"server-hostname": "peer1.transfer.hlc.com",
+					"tls_cacerts": "../artifacts/channel/crypto-config/peerOrganizations/transfer.hlc.com/peers/peer1.transfer.hlc.com/tls/ca.crt"
+				}	
+			},
+			"admin": {
+				"key": "../artifacts/channel/crypto-config/peerOrganizations/transfer.hlc.com/users/Admin@transfer.hlc.com/msp/keystore",
+				"cert": "../artifacts/channel/crypto-config/peerOrganizations/transfer.hlc.com/users/Admin@transfer.hlc.com/msp/signcerts"
+			}
+		}
+	}
+}
